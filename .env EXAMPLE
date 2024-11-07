@@ -1,0 +1,4 @@
+# Not needed usually but if you want a different port or specify a different mongoDB uri then put that here
+
+PORT=
+MONGODB_URI=
