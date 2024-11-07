@@ -3,12 +3,12 @@ import { Schema, model} from 'mongoose';
 const reactionSchema = new Schema({
   reactionId: {
     type: Schema.Types.ObjectId,
-    // TODO: Default value set to a new object ID
+    default: Schema.Types.ObjectId
   },
   reactionBody: {
     type: String,
     required: true,
-    // TODO: 280 character maximum
+    maxlength: 280
   },
   username: {
     type: String,
@@ -16,8 +16,8 @@ const reactionSchema = new Schema({
   },
   createdAt: {
     type: Date,
-    // TODO: Set default value to the current timestamp
-    // TODO: Use a getter method to format the timestamp on query
+    default: () => new Date(),
+    get: (timestamp: Date) => timestamp.toLocaleString()
   }
 })
 

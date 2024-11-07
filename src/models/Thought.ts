@@ -1,32 +1,45 @@
-import { Schema, model, type Document} from 'mongoose';
+import { Schema, model, type Document } from 'mongoose';
 
 interface IThought extends Document {
   thoughtText: string;
-  createdAt: Date;
+  createdAt: string;
   username: string;
-  // TODO: Reactions
+  reactions: Schema.Types.ObjectId[];
 }
 
-const thoughtSchema = new Schema<IThought>({
+const ThoughtSchema = new Schema<IThought>({
   thoughtText: {
     type: String,
     required: true,
-    // TODO: Must be between 1 and 280 characters
+    minlength: 1,
+    maxlength: 280,
   },
   createdAt: {
-    type: Date,
-    // TODO: Set default value to the current timestamp
-    // TODO: Getter method to format the timestamp on query
+    type: String,
+    required: true,
+    default: () => new Date().toLocaleString(),
   },
   username: {
     type: String,
     required: true,
   },
-  // TODO: Reactions
-})
+  reactions: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Reaction',
+    },
+  ],
+}, {
+  toJSON: {
+    virtuals: true,
+  },
+  id: false,
+});
 
-// TODO: Create a virtual called reactionCount that retrieves the length of the thought's reactions array field on query
+ThoughtSchema.virtual('reactionCount').get(function() {
+  return this.reactions.length;
+});
 
-const Thought = model<IThought>('Thought', thoughtSchema);
+const Thought = model<IThought>('Thought', ThoughtSchema);
 
 export default Thought;
