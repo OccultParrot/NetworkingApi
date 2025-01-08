@@ -1,42 +1,48 @@
-import { Schema, model, type Document } from 'mongoose';
+// src/models/Thought.ts
+import { Schema, model, Document } from 'mongoose';
+import ReactionSchema, { IReaction } from './Reaction.js';
 
-interface IThought extends Document {
+export interface IThought extends Document {
   thoughtText: string;
-  createdAt: string;
+  createdAt: Date;
   username: string;
-  reactions: Schema.Types.ObjectId[];
+  reactions: IReaction[];
+  reactionCount: number;
 }
 
-const ThoughtSchema = new Schema<IThought>({
-  thoughtText: {
-    type: String,
-    required: true,
-    minlength: 1,
-    maxlength: 280,
-  },
-  createdAt: {
-    type: String,
-    required: true,
-    default: () => new Date().toLocaleString(),
-  },
-  username: {
-    type: String,
-    required: true,
-  },
-  reactions: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Reaction',
-    },
-  ],
-}, {
-  toJSON: {
-    virtuals: true,
-  },
-  id: false,
-});
+const dateFormat = (timestamp: Date): string => {
+  return new Date(timestamp).toLocaleString();
+};
 
-ThoughtSchema.virtual('reactionCount').get(function() {
+const ThoughtSchema = new Schema<IThought>(
+  {
+    thoughtText: {
+      type: String,
+      required: true,
+      minLength: 1,
+      maxLength: 280
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      transform: (date: Date) => dateFormat(date)
+    },
+    username: {
+      type: String,
+      required: true
+    },
+    reactions: [ReactionSchema]
+  },
+  {
+    toJSON: {
+      virtuals: true,
+      getters: true
+    },
+    id: false
+  }
+);
+
+ThoughtSchema.virtual('reactionCount').get(function(this: IThought) {
   return this.reactions.length;
 });
 
